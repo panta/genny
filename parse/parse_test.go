@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cheekybits/genny/parse"
+	"github.com/panta/genny/parse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -118,7 +118,7 @@ func TestParse(t *testing.T) {
 		test.in = contents(test.in)
 		test.expectedOut = contents(test.expectedOut)
 
-		bytes, err := parse.Generics(test.filename, test.pkgName, strings.NewReader(test.in), test.types)
+		bytes, err := parse.Generics(test.filename, test.pkgName, false, strings.NewReader(test.in), test.types)
 
 		// check the error
 		if test.expectedErr == nil {

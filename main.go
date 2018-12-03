@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cheekybits/genny/out"
-	"github.com/cheekybits/genny/parse"
+	"github.com/panta/genny/out"
+	"github.com/panta/genny/parse"
 )
 
 /*
@@ -36,6 +36,7 @@ func main() {
 		in      = flag.String("in", "", "file to parse instead of stdin")
 		out     = flag.String("out", "", "file to save output to instead of stdout")
 		pkgName = flag.String("pkg", "", "package name for generated files")
+		ignoreImports = flag.Bool("ignore-imports", true, "don't process imports in generated files")
 		prefix  = "https://github.com/metabition/gennylib/raw/master/"
 	)
 	flag.Parse()
@@ -79,7 +80,7 @@ func main() {
 		}
 		r.Body.Close()
 		br := bytes.NewReader(b)
-		err = gen(*in, *pkgName, br, typeSets, outWriter)
+		err = gen(*in, *pkgName, *ignoreImports, br, typeSets, outWriter)
 	} else if len(*in) > 0 {
 		var file *os.File
 		file, err = os.Open(*in)
@@ -87,7 +88,7 @@ func main() {
 			fatal(exitcodeSourceFileInvalid, err)
 		}
 		defer file.Close()
-		err = gen(*in, *pkgName, file, typeSets, outWriter)
+		err = gen(*in, *pkgName, *ignoreImports, file, typeSets, outWriter)
 	} else {
 		var source []byte
 		source, err = ioutil.ReadAll(os.Stdin)
@@ -95,7 +96,7 @@ func main() {
 			fatal(exitcodeStdinFailed, err)
 		}
 		reader := bytes.NewReader(source)
-		err = gen("stdin", *pkgName, reader, typeSets, outWriter)
+		err = gen("stdin", *pkgName, *ignoreImports, reader, typeSets, outWriter)
 	}
 
 	// do the work
@@ -139,12 +140,12 @@ func fatal(code int, a ...interface{}) {
 }
 
 // gen performs the generic generation.
-func gen(filename, pkgName string, in io.ReadSeeker, typesets []map[string]string, out io.Writer) error {
+func gen(filename, pkgName string, dontProcessImports bool, in io.ReadSeeker, typesets []map[string]string, out io.Writer) error {
 
 	var output []byte
 	var err error
 
-	output, err = parse.Generics(filename, pkgName, in, typesets)
+	output, err = parse.Generics(filename, pkgName, dontProcessImports, in, typesets)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,6 @@
 package math
 
-import "github.com/cheekybits/genny/generic"
+import "github.com/panta/genny/generic"
 
 type NumberType generic.Number
 
